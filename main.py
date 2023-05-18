@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 
 from HouseListing import HouseListing
 
@@ -59,7 +60,7 @@ def main():
     print("Searching for results...")
     time.sleep(5)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-    entries = soup.div.find_all(attrs={"class": "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"})
+    entries = soup.find_all(attrs={"class": "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"})
 
     if entries:
         print(f"Entries: {len(entries)}")
@@ -68,9 +69,14 @@ def main():
             hl = HouseListing(str(entry))
             house_list.append(hl)
 
-        with open("listings.txt", "w") as f:
-            for hl in house_list:
-                f.write(str(hl) + "\n\n")
+        with open("listings.json", "w") as f:
+            listing = 1
+            house_dict = {}
+            for house in house_list:
+                house_dict[listing] = house.to_dict()
+                listing += 1
+            json.dump(house_dict, f, indent=4)
+
     else:
         print("No results found :(")
 
