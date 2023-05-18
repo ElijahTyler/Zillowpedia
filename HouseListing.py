@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 class HouseListing:
     def __init__(self, obj = None) -> None:
         if not obj:
-            print("Please pass in a BeautifulSoup object")
+            print("Please pass in valid HTML")
             return
         
         soup = BeautifulSoup(obj, 'html.parser')

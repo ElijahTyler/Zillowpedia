@@ -62,7 +62,7 @@ def main():
     if entries:
         house_list = []
         for entry in entries:
-            hl = HouseListing(entry)
+            hl = HouseListing(str(entry))
             house_list.append(hl)
             print(hl)
     else:
