@@ -2,10 +2,12 @@ from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
 
+from HouseListing import HouseListing
+
 from bs4 import BeautifulSoup
-import os, sys, json
+import os, time
 from sys import platform
-import requests
+import time
 import json
 
 maindir = os.path.dirname(os.path.abspath(__file__))
@@ -54,16 +56,17 @@ def main():
     soup = BeautifulSoup(driver.page_source, 'html.parser')
 
     print("Searching for results...")
+    time.sleep(5)
     entries = soup.div.find_all(attrs={"class": "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"})
 
     if entries:
-        i = 1
+        house_list = []
         for entry in entries:
-            print(f'Entry {i}:')
-            print(entry.text)
-            i += 1
+            hl = HouseListing(entry)
+            house_list.append(hl)
+            print(hl)
     else:
-        print("No results found. :(")
+        print("No results found :(")
 
 if __name__ == "__main__":
     main()
