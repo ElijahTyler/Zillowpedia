@@ -14,7 +14,9 @@ maindir = os.path.dirname(os.path.abspath(__file__))
 
 ZIP_CODE = True
 
-url = r"https://www.zillow.com/novi-mi-48377/houses/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22usersSearchTerm%22%3A%2248377%22%2C%22mapBounds%22%3A%7B%22west%22%3A-83.52651613000488%2C%22east%22%3A-83.42678086999511%2C%22south%22%3A42.47373247081512%2C%22north%22%3A42.53637560960464%7D%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A79170%2C%22regionType%22%3A7%7D%5D%2C%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22ah%22%3A%7B%22value%22%3Atrue%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22land%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A13%7D"
+url_a = r"https://www.zillow.com/novi-mi-48377/houses/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22usersSearchTerm%22%3A%2248377%22%2C%22mapBounds%22%3A%7B%22west%22%3A-83.52651613000488%2C%22east%22%3A-83.42678086999511%2C%22south%22%3A42.47373247081512%2C%22north%22%3A42.53637560960464%7D%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A79170%2C%22regionType%22%3A7%7D%5D%2C%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22ah%22%3A%7B%22value%22%3Atrue%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22land%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A13%7D"
+url_b = r"https://www.zillow.com/homes/for_sale/?searchQueryState=%7B%22usersSearchTerm%22%3A%2248377%22%2C%22mapBounds%22%3A%7B%22west%22%3A-83.67611902001953%2C%22east%22%3A-83.27717797998046%2C%22south%22%3A42.379650083592%2C%22north%22%3A42.63022260878972%7D%2C%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22ah%22%3A%7B%22value%22%3Atrue%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22land%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A11%2C%22customRegionId%22%3A%223343264666X1-CR1fmc8b99lrgsl_19hukm%22%7D"
+url = url_b
 
 agent_a = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
 agent_b = "Mozilla/5.0 (Linux; Android 9; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Mobile Safari/537.36"
@@ -53,18 +55,22 @@ def main():
 
     print("Loading Zillow...")
     driver.get(url)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
 
     print("Searching for results...")
     time.sleep(5)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
     entries = soup.div.find_all(attrs={"class": "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"})
 
     if entries:
+        print(f"Entries: {len(entries)}")
         house_list = []
         for entry in entries:
             hl = HouseListing(str(entry))
             house_list.append(hl)
-            print(hl)
+
+        with open("listings.txt", "w") as f:
+            for hl in house_list:
+                f.write(str(hl) + "\n\n")
     else:
         print("No results found :(")
 
