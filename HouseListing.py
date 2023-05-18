@@ -5,6 +5,7 @@ class HouseListing:
         if not obj:
             print("Please pass in a BeautifulSoup object")
             return
+        
         soup = BeautifulSoup(obj, 'html.parser')
         # address
         self.address = soup.address.text.strip()
