@@ -63,7 +63,7 @@ def main():
             print(entry.text)
             i += 1
     else:
-        print("No results found.")
+        print("No results found. :(")
 
 if __name__ == "__main__":
     main()
