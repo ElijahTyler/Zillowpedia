@@ -36,6 +36,8 @@ def init_firefox(headless=False):
 
 
 def main():
+    start_time = time.time()
+
     print("Loading Selenium (firefox)...")
     driver = init_firefox(headless=False)
 
@@ -46,13 +48,15 @@ def main():
     result_count = driver.find_element(By.CLASS_NAME, "result-count")
     container = driver.find_element(By.ID, "search-page-list-container")
     action = ActionChains(driver)
-    for i in range(15):
-        action.move_to_element(container).click(container).perform()
+    for i in range(12):
+        action.move_to_element(container).perform()
+        if i < 10:
+            action.click(container).perform()
         action.send_keys(Keys.PAGE_DOWN).perform()
         time.sleep(0.5)
     entries = []
     while not entries:
-        # time.sleep(5)
+        time.sleep(1)
         html = driver.execute_script("return document.documentElement.outerHTML")
         soup = BeautifulSoup(html, 'html.parser')
         entries = soup.find_all(attrs={"class": "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"})
@@ -75,6 +79,11 @@ def main():
         # data.update(house_dict)
         # json.dump(data, f, indent=4)
         json.dump(house_dict, f, indent=4)
+
+    driver.quit()
+    # time taken to 2 decimal points
+    total_time = round(time.time() - start_time, 2)
+    print(f"Time taken: {total_time} seconds")
 
 if __name__ == "__main__":
     main()
