@@ -2,6 +2,8 @@
 
 a Python-based house listing scraper
 
+NOTE: Only tested on Linux Mint, Windows version under development
+
 ## Installation
 
 0. Ensure you have Firefox installed to the default location
