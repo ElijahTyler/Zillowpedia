@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 
 from HouseListing import HouseListing
 
@@ -56,25 +56,36 @@ def main():
 
     print("Loading Zillow...")
     driver.get(url)
+    # load everything on the website
 
-    print("Searching for results...")
-    time.sleep(5)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    entries = soup.find_all(attrs={"class": "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"})
+    print("Scraping results...")
+    result_count = driver.find_element(By.CLASS_NAME, "result-count")
+    # result_count.click()
+    # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    entries = []
+    while not entries:
+        time.sleep(5)
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        entries = soup.find_all(attrs={"class": "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"})
 
     if entries:
-        print(f"Entries: {len(entries)}")
+        print(f"Succes! {result_count.text}")
+        print(f"Results for this page: {len(entries)}")
         house_list = []
         for entry in entries:
             hl = HouseListing(str(entry))
             house_list.append(hl)
 
+        # with open("listings.json", "r") as f:
+        #     data = json.load(f)
         with open("listings.json", "w") as f:
             listing = 1
             house_dict = {}
             for house in house_list:
                 house_dict[listing] = house.to_dict()
                 listing += 1
+            # data.update(house_dict)
+            # json.dump(data, f, indent=4)
             json.dump(house_dict, f, indent=4)
 
     else:
