@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 
 from HouseListing import HouseListing
 
@@ -13,16 +14,9 @@ import json
 
 maindir = os.path.dirname(os.path.abspath(__file__))
 
-ZIP_CODE = True
-
-url_a = r"https://www.zillow.com/novi-mi-48377/houses/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22usersSearchTerm%22%3A%2248377%22%2C%22mapBounds%22%3A%7B%22west%22%3A-83.52651613000488%2C%22east%22%3A-83.42678086999511%2C%22south%22%3A42.47373247081512%2C%22north%22%3A42.53637560960464%7D%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A79170%2C%22regionType%22%3A7%7D%5D%2C%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22ah%22%3A%7B%22value%22%3Atrue%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22land%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A13%7D"
-url_b = r"https://www.zillow.com/homes/for_sale/?searchQueryState=%7B%22usersSearchTerm%22%3A%2248377%22%2C%22mapBounds%22%3A%7B%22west%22%3A-83.67611902001953%2C%22east%22%3A-83.27717797998046%2C%22south%22%3A42.379650083592%2C%22north%22%3A42.63022260878972%7D%2C%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22ah%22%3A%7B%22value%22%3Atrue%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22land%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A11%2C%22customRegionId%22%3A%223343264666X1-CR1fmc8b99lrgsl_19hukm%22%7D"
-url = url_b
-
-agent_a = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
-agent_b = "Mozilla/5.0 (Linux; Android 9; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Mobile Safari/537.36"
-agent_c = "Mozilla/5.0 (iPad; U; CPU OS 3_2_1 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Mobile/7B405"
-agents = [agent_a, agent_b, agent_c]
+# replace this with your own zillow search query
+# example: I went to zillow.com and typed 48377 in my search, then drew a region around me in which to search for
+url = r"https://www.zillow.com/homes/for_sale/?searchQueryState=%7B%22usersSearchTerm%22%3A%2248377%22%2C%22mapBounds%22%3A%7B%22west%22%3A-83.67611902001953%2C%22east%22%3A-83.27717797998046%2C%22south%22%3A42.379650083592%2C%22north%22%3A42.63022260878972%7D%2C%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22ah%22%3A%7B%22value%22%3Atrue%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22land%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A11%2C%22customRegionId%22%3A%223343264666X1-CR1fmc8b99lrgsl_19hukm%22%7D"
 
 def init_firefox(headless=False):
     opts = FirefoxOptions()
@@ -40,56 +34,47 @@ def init_firefox(headless=False):
     return driver
 
 
-def main():
-    # decide agent
-    # with open('agent_to_use.json', 'r') as f:
-    #     data = json.load(f)
-    #     agent_to_use = agents[data['agent_to_use']]
-    #     print("Using agent: " + agent_to_use)
-    #     with open('agent_to_use.json', 'w') as f:
-    #         data['agent_to_use'] = (data['agent_to_use'] + 1) % len(agents)
-    #         json.dump(data, f)
-    # headers = {'User-Agent': agent_to_use}
 
+def main():
     print("Loading Selenium (firefox)...")
     driver = init_firefox(headless=False)
 
     print("Loading Zillow...")
     driver.get(url)
-    # load everything on the website
 
     print("Scraping results...")
     result_count = driver.find_element(By.CLASS_NAME, "result-count")
-    # result_count.click()
-    # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    container = driver.find_element(By.ID, "search-page-list-container")
+    action = ActionChains(driver)
+    for i in range(15):
+        action.move_to_element(container).click(container).perform()
+        action.send_keys(Keys.PAGE_DOWN).perform()
+        time.sleep(0.5)
     entries = []
     while not entries:
-        time.sleep(5)
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        # time.sleep(5)
+        html = driver.execute_script("return document.documentElement.outerHTML")
+        soup = BeautifulSoup(html, 'html.parser')
         entries = soup.find_all(attrs={"class": "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"})
 
-    if entries:
-        print(f"Succes! {result_count.text}")
-        print(f"Results for this page: {len(entries)}")
-        house_list = []
-        for entry in entries:
-            hl = HouseListing(str(entry))
-            house_list.append(hl)
+    print(f"Success! {result_count.text}")
+    print(f"Results for this page: {len(entries)}")
+    house_list = []
+    for entry in entries:
+        hl = HouseListing(str(entry))
+        house_list.append(hl)
 
-        # with open("listings.json", "r") as f:
-        #     data = json.load(f)
-        with open("listings.json", "w") as f:
-            listing = 1
-            house_dict = {}
-            for house in house_list:
-                house_dict[listing] = house.to_dict()
-                listing += 1
-            # data.update(house_dict)
-            # json.dump(data, f, indent=4)
-            json.dump(house_dict, f, indent=4)
-
-    else:
-        print("No results found :(")
+    # with open("listings.json", "r") as f:
+    #     data = json.load(f)
+    with open("listings.json", "w") as f:
+        listing = 1
+        house_dict = {}
+        for house in house_list:
+            house_dict[listing] = house.to_dict()
+            listing += 1
+        # data.update(house_dict)
+        # json.dump(data, f, indent=4)
+        json.dump(house_dict, f, indent=4)
 
 if __name__ == "__main__":
     main()
