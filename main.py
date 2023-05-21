@@ -11,6 +11,7 @@ import os, time
 from sys import platform
 import time
 import json
+import math
 import re
 
 maindir = os.path.dirname(os.path.abspath(__file__))
@@ -49,32 +50,41 @@ def main():
     print("Loading Zillow...")
     driver.get(USER_URL)
 
-    CURRENT_CLASS = "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"
-
-    print("Scraping results...")
+    CURRENT_CLASS = re.compile("StyledPropertyCardDataWrapper-c11n-8-8.*")
     result_count = driver.find_element(By.CLASS_NAME, "result-count")
-    container = driver.find_element(By.ID, "search-page-list-container")
-    action = ActionChains(driver)
-    for i in range(12):
-        action.move_to_element(container).perform()
-        if i < 10:
-            action.click(container).perform()
-        action.send_keys(Keys.PAGE_DOWN).perform()
-        time.sleep(0.5)
-    entries = []
-    while not entries:
-        time.sleep(1)
-        html = driver.execute_script("return document.documentElement.outerHTML")
-        soup = BeautifulSoup(html, 'html.parser')
-        entries = soup.find_all(attrs={"class": CURRENT_CLASS})
+    result_num = int(result_count.text.split()[0].replace(",", ""))
+    page_limit = math.ceil(result_num / 40)
+
+    house_list = []
+    for page_num in range(page_limit):
+        print(f"Scraping results from page {page_num+1}...")
+        container = driver.find_element(By.ID, "search-page-list-container")
+        action = ActionChains(driver)
+        for i in range(12):
+            action.move_to_element(container).perform()
+            if i < 10:
+                action.click(container).perform()
+            action.send_keys(Keys.PAGE_DOWN).perform()
+            time.sleep(0.5)
+        entries = []
+        while not entries:
+            time.sleep(1)
+            html = driver.execute_script("return document.documentElement.outerHTML")
+            soup = BeautifulSoup(html, 'html.parser')
+            entries = soup.find_all(attrs={"class": CURRENT_CLASS})
+
+        print(f"Results for this page: {len(entries)}")
+        
+        for entry in entries:
+            hl = HouseListing(str(entry))
+            house_list.append(hl)
+
+        if page_num < page_limit - 1:
+            next_button = driver.find_element(By.CLASS_NAME, "StyledButton-c11n-8-84-0__sc-wpcbcc-0 hFaVRz PaginationButton-c11n-8-84-0__sc-si2hz6-0 ekxYeX")
+            action.click(next_button).perform()
 
     print(f"Success! {result_count.text}")
-    print(f"Results for this page: {len(entries)}")
-    house_list = []
-    for entry in entries:
-        hl = HouseListing(str(entry))
-        house_list.append(hl)
-
+    
     # with open("listings.json", "r") as f:
     #     data = json.load(f)
     with open("listings.json", "w") as f:
