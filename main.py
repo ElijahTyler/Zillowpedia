@@ -14,9 +14,13 @@ import json
 
 maindir = os.path.dirname(os.path.abspath(__file__))
 
-# replace this with your own zillow search query
-# example: I went to zillow.com and typed 48377 in my search, then drew a region around me in which to search for
-url = r"https://www.zillow.com/homes/for_sale/?searchQueryState=%7B%22usersSearchTerm%22%3A%2248377%22%2C%22mapBounds%22%3A%7B%22west%22%3A-83.67611902001953%2C%22east%22%3A-83.27717797998046%2C%22south%22%3A42.379650083592%2C%22north%22%3A42.63022260878972%7D%2C%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22ah%22%3A%7B%22value%22%3Atrue%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22land%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A11%2C%22customRegionId%22%3A%223343264666X1-CR1fmc8b99lrgsl_19hukm%22%7D"
+# replace USER_URL with your own zillow search query
+# step 1: Go to zillow.com
+# step 2: Set your search parameters
+# ex. I typed a zip code and drew a region in which to search for
+# step 3: Copy the url and paste it here
+# aside: using r"" (raw string) eliminates the need to escape the backslashes
+USER_URL = r"https://www.zillow.com/homes/for_sale/?searchQueryState=%7B%22usersSearchTerm%22%3A%2248377%22%2C%22mapBounds%22%3A%7B%22west%22%3A-83.67611902001953%2C%22east%22%3A-83.27717797998046%2C%22south%22%3A42.379650083592%2C%22north%22%3A42.63022260878972%7D%2C%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22ah%22%3A%7B%22value%22%3Atrue%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22land%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A11%2C%22customRegionId%22%3A%223343264666X1-CR1fmc8b99lrgsl_19hukm%22%7D"
 
 def init_firefox(headless=False):
     opts = FirefoxOptions()
@@ -42,7 +46,7 @@ def main():
     driver = init_firefox(headless=False)
 
     print("Loading Zillow...")
-    driver.get(url)
+    driver.get(USER_URL)
 
     print("Scraping results...")
     result_count = driver.find_element(By.CLASS_NAME, "result-count")
