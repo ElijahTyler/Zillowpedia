@@ -10,7 +10,11 @@ class HouseListing:
             self.beds = 0
             self.baths = 0
             self.square_feet = 0
-        else:    
+        else:
+            def extract_nums(string): # returns -1 if no numbers found
+                temp = re.sub("[^0-9]", "", string)
+                return temp if temp else -1
+            
             soup = BeautifulSoup(obj, 'html.parser')
             # address
             self.address = soup.address.text.strip()
@@ -19,16 +23,16 @@ class HouseListing:
             self.realtor = realtor.text.strip()
             # price
             price = soup.find_all(attrs={"class": "StyledPropertyCardDataArea-c11n-8-84-0__sc-yipmu-0 dJxUgr"})[0]
-            self.price = re.sub("[^0-9]", "", price.text.strip())
+            self.price = extract_nums(price.text.strip())
             self.price = int(self.price) if self.price else -1
             # beds
             beds_baths_sqft = soup.find_all(attrs={"class": "StyledPropertyCardHomeDetailsList-c11n-8-84-0__sc-1xvdaej-0 ehrLVA"})[0]
             beds, baths, sqft = beds_baths_sqft.find_all("b")
-            self.beds = int(beds.text.strip())
+            self.beds = extract_nums(beds.text.strip())
             # baths
-            self.baths = int(baths.text.strip())
+            self.baths = extract_nums(baths.text.strip())
             # sqft
-            self.square_feet = int(sqft.text.strip().replace(",", ""))
+            self.square_feet = extract_nums(sqft.text.strip())
 
     def __str__(self) -> str:
         return f'Address: {self.address}\nRealtor: {self.realtor}\nPrice: {self.price}\nBeds: {self.beds}\nBaths: {self.baths}\nSquare feet: {self.square_feet}'
