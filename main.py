@@ -11,6 +11,7 @@ import os, time
 from sys import platform
 import time
 import json
+import re
 
 maindir = os.path.dirname(os.path.abspath(__file__))
 
@@ -48,6 +49,8 @@ def main():
     print("Loading Zillow...")
     driver.get(USER_URL)
 
+    CURRENT_CLASS = "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"
+
     print("Scraping results...")
     result_count = driver.find_element(By.CLASS_NAME, "result-count")
     container = driver.find_element(By.ID, "search-page-list-container")
@@ -63,7 +66,7 @@ def main():
         time.sleep(1)
         html = driver.execute_script("return document.documentElement.outerHTML")
         soup = BeautifulSoup(html, 'html.parser')
-        entries = soup.find_all(attrs={"class": "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"})
+        entries = soup.find_all(attrs={"class": CURRENT_CLASS})
 
     print(f"Success! {result_count.text}")
     print(f"Results for this page: {len(entries)}")
