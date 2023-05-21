@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import re
 
 class HouseListing:
     def __init__(self, obj = None) -> None:
@@ -18,7 +19,8 @@ class HouseListing:
             self.realtor = realtor.text.strip()
             # price
             price = soup.find_all(attrs={"class": "StyledPropertyCardDataArea-c11n-8-84-0__sc-yipmu-0 dJxUgr"})[0]
-            self.price = int(price.text.strip().replace("$", "").replace(",", "").replace("+",""))
+            self.price = re.sub("[^0-9]", "", price.text.strip())
+            self.price = int(self.price) if self.price else -1
             # beds
             beds_baths_sqft = soup.find_all(attrs={"class": "StyledPropertyCardHomeDetailsList-c11n-8-84-0__sc-1xvdaej-0 ehrLVA"})[0]
             beds, baths, sqft = beds_baths_sqft.find_all("b")
