@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
-from HouseListing import HouseListing
+from HouseListings import HouseListings
 
 from bs4 import BeautifulSoup
 import os, time
@@ -77,7 +77,7 @@ def main():
         print(f"Results for this page: {len(entries)}")
         
         for entry in entries:
-            hl = HouseListing(str(entry))
+            hl = HouseListings(str(entry))
             house_list.append(hl)
 
         if page_num < page_limit - 1:
