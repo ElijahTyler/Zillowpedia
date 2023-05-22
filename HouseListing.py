@@ -11,8 +11,6 @@ class HouseListing:
             self.baths = 0
             self.square_feet = 0
         else:
-            with open('bruh.txt', 'w') as f:
-                f.write(obj)
             def extract_nums(string): # returns -1 if no numbers found
                 temp = re.sub("[^0-9]", "", string)
                 return temp if temp else -1
