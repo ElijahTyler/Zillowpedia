@@ -1,4 +1,5 @@
 import json
+import csv
 
 class HouseData:
     def __init__(self, jason = None) -> None:
@@ -12,7 +13,8 @@ class HouseData:
             return
         with open(jason, 'r') as f:
             self.data = json.load(f)
-            for house in self.data:
+            for h in self.data:
+                house = self.data[h]
                 self.addresses.append(house['address'])
                 self.realtors.append(house['realtor'])
                 self.prices.append(house['price'])
@@ -20,7 +22,5 @@ class HouseData:
                 self.baths.append(house['baths'])
                 self.square_feets.append(house['square_feet'])
 
-    #TODO add methods
-
-    def sort_price(self):
+    def sort_prices(self):
         return sorted(self.prices)

@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import re
 import json
 
-class HouseListing:
+class HouseListings:
     def __init__(self, obj = None) -> None:
         if not obj:
             self.address = ""
