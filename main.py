@@ -13,6 +13,22 @@ import time
 import json
 import math
 import re
+import itertools
+
+def xpath_soup(element):
+    components = []
+    child = element if element.name else element.parent
+    for parent in child.parents:
+        """
+        @type parent: bs4.element.Tag
+        """
+        previous = itertools.islice(parent.children, 0, parent.contents.index(child))
+        xpath_tag = child.name
+        xpath_index = sum(1 for i in previous if i.name == xpath_tag) + 1
+        components.append(xpath_tag if xpath_index == 1 else '%s[%d]' % (xpath_tag, xpath_index))
+        child = parent
+    components.reverse()
+    return '/%s' % '/'.join(components)
 
 maindir = os.path.dirname(os.path.abspath(__file__))
 
@@ -50,7 +66,8 @@ def main():
     print("Loading Zillow...")
     driver.get(USER_URL)
 
-    CURRENT_CLASS = re.compile("StyledPropertyCardDataWrapper-c11n-8-8.*")
+    CURRENT_CLASS = "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"
+
     result_count = driver.find_element(By.CLASS_NAME, "result-count")
     result_num = int(result_count.text.split()[0].replace(",", ""))
     page_limit = math.ceil(result_num / 40)
@@ -80,8 +97,8 @@ def main():
             house_list.append(hl)
 
         if page_num < page_limit - 1:
-            next_button = driver.find_element(By.CLASS_NAME, "StyledButton-c11n-8-84-0__sc-wpcbcc-0 hFaVRz PaginationButton-c11n-8-84-0__sc-si2hz6-0 ekxYeX")
-            action.click(next_button).perform()
+            print("Waiting for next page, press enter once done...")
+            input()
 
     print(f"Success! {result_count.text}")
     
