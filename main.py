@@ -3,6 +3,8 @@ from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from HouseListings import HouseListings
 
@@ -74,15 +76,20 @@ def main():
             soup = BeautifulSoup(html, 'html.parser')
             entries = soup.find_all(attrs={"class": CURRENT_CLASS})
 
-        print(f"Results for this page: {len(entries)}")
-        
         for entry in entries:
             hl = HouseListings(str(entry))
             house_list.append(hl)
 
-        if page_num < page_limit - 1:
-            print("Waiting for next page, press enter once done...")
-            input()
+        if page_num < page_limit - 1: #TODO fix
+            next_button = driver.find_element(By.XPATH, '//*[@title="Next page"]')
+            href = next_button.get_attribute("href")
+            driver.execute_script("arguments[0].scrollIntoView();", next_button)
+            # click button with javascript
+            driver.execute_script("arguments[0].click();", next_button)
+
+            wait = WebDriverWait(driver, 10)  # Adjust the timeout (in seconds) as needed
+            wait.until(EC.presence_of_element_located((By.XPATH, "//img[@aria-hidden='false']")))
+
 
     print(f"Success! {result_count.text}")
     
