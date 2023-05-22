@@ -21,3 +21,6 @@ class HouseData:
                 self.square_feets.append(house['square_feet'])
 
     #TODO add methods
+
+    def sort_price(self):
+        return sorted(self.prices)
