@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import re
+import json
 
 class HouseListing:
     def __init__(self, obj = None) -> None:
@@ -13,7 +14,10 @@ class HouseListing:
         else:
             def extract_nums(string): # returns -1 if no numbers found
                 temp = re.sub("[^0-9]", "", string)
-                return temp if temp else -1
+                if temp:
+                    return int(temp)
+                else:
+                    return -1
             
             soup = BeautifulSoup(obj, 'html.parser')
             # address
