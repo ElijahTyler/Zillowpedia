@@ -18,13 +18,7 @@ import re
 
 maindir = os.path.dirname(os.path.abspath(__file__))
 
-# replace USER_URL with your own zillow search query
-# step 1: Go to zillow.com
-# step 2: Set your search parameters
-# ex. I typed a zip code and drew a region in which to search for
-# step 3: Copy the url and paste it here
-# aside: using r"" (raw string) eliminates the need to escape the backslashes
-USER_URL = r"https://www.zillow.com/homes/for_sale/?searchQueryState=%7B%22usersSearchTerm%22%3A%2248377%22%2C%22mapBounds%22%3A%7B%22west%22%3A-83.67611902001953%2C%22east%22%3A-83.27717797998046%2C%22south%22%3A42.379650083592%2C%22north%22%3A42.63022260878972%7D%2C%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22ah%22%3A%7B%22value%22%3Atrue%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22land%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A11%2C%22customRegionId%22%3A%223343264666X1-CR1fmc8b99lrgsl_19hukm%22%7D"
+
 
 def init_firefox(headless=False):
     opts = FirefoxOptions()
@@ -43,24 +37,19 @@ def init_firefox(headless=False):
 
 
 
-def main():
+def main(url_list):
     start_time = time.time()
 
-    print("Loading Selenium (firefox)...")
-    driver = init_firefox(headless=False)
-
-    print("Loading Zillow...")
-    driver.get(USER_URL)
-
-    CURRENT_CLASS = "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"
-
-    result_count = driver.find_element(By.CLASS_NAME, "result-count")
-    result_num = int(result_count.text.split()[0].replace(",", ""))
-    page_limit = math.ceil(result_num / 40)
-
     house_list = []
-    for page_num in range(page_limit):
-        print(f"Scraping results from page {page_num+1}...")
+    for USER_URL in url_list:
+        print("Loading Selenium (firefox)...")
+        driver = init_firefox(headless=False)
+
+        print("Loading Zillow URL...")
+        driver.get(USER_URL)
+
+        CURRENT_CLASS = "StyledPropertyCardDataWrapper-c11n-8-84-0__sc-1omp4c3-0 cXTjvn property-card-data"
+
         container = driver.find_element(By.ID, "search-page-list-container")
         action = ActionChains(driver)
         for i in range(12):
@@ -70,28 +59,25 @@ def main():
             action.send_keys(Keys.PAGE_DOWN).perform()
             time.sleep(0.5)
         entries = []
+        timeout = 0
         while not entries:
             time.sleep(1)
             html = driver.execute_script("return document.documentElement.outerHTML")
             soup = BeautifulSoup(html, 'html.parser')
             entries = soup.find_all(attrs={"class": CURRENT_CLASS})
+            timeout += 1
+            if timeout > 10:
+                print(f"Timeout reached. Ending program...")
+                driver.close()
+                break
 
         for entry in entries:
             hl = HouseListings(str(entry))
             house_list.append(hl)
 
-        if page_num < page_limit - 1: #TODO fix
-            next_button = driver.find_element(By.XPATH, '//*[@title="Next page"]')
-            href = next_button.get_attribute("href")
-            driver.execute_script("arguments[0].scrollIntoView();", next_button)
-            # click button with javascript
-            driver.execute_script("arguments[0].click();", next_button)
+        driver.close()
 
-            wait = WebDriverWait(driver, 10)  # Adjust the timeout (in seconds) as needed
-            wait.until(EC.presence_of_element_located((By.XPATH, "//img[@aria-hidden='false']")))
-
-
-    print(f"Success! {result_count.text}")
+    print(f"Success! Results found: {len(house_list)}")
     
     # with open("listings.json", "r") as f:
     #     data = json.load(f)
@@ -105,10 +91,24 @@ def main():
         # json.dump(data, f, indent=4)
         json.dump(house_dict, f, indent=4)
 
-    driver.quit()
     # time taken to 2 decimal points
     total_time = round(time.time() - start_time, 2)
     print(f"Time taken: {total_time} seconds")
 
 if __name__ == "__main__":
-    main()
+    # step 1: Go to zillow.com
+    # step 2: Set your search parameters (ex. I typed a zip code and drew a region in which to search for)
+    # step 3: Copy the urls FOR EACH INDIVIDUAL PAGE and paste it here
+    # aside: r"" (raw string) eliminates the need to escape the backslashes
+
+    # example setup:
+    # url1 = r"https://www.zillow.com/homes/for_sale/?searchQueryState=blahblahblah"
+    # url2 = r""
+    # url3 = r""
+    # url4 = r""
+    # ...
+    # urls = [url1, url2, url3, url4, ...]
+    # main(urls)
+
+    urls = []
+    main(urls)

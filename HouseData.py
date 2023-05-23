@@ -34,3 +34,5 @@ class HouseData:
             writer.writerow(["Address", "Realtor", "Price", "Beds", "Baths", "Square Feet"])
             for i in range(len(self.addresses)):
                 writer.writerow([self.addresses[i], self.realtors[i], self.prices[i], self.beds[i], self.baths[i], self.square_feets[i]])
+        
+        print(f"CSV file generated: {name}")
