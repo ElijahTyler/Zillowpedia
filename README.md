@@ -1,6 +1,6 @@
 # Zillowpedia
 
-a Python-based house listing scraper
+Let's say you want to search Zillow for property around you, and want to compile all of the data. This is the function that Zillowpedia fits to serve. Zillowpedia will scrape all of the house listings from any Zillow search URL you give it. In addition, you have the option of generating a .csv file from the given data.
 
 NOTE: Only tested on Linux Mint, Windows version under development
 
